@@ -46,7 +46,7 @@ static void chat(Napi::Function &emit, Args &args) {
 
     std::string model_name = pipeline.model->config.model_type_name();
 
-    auto text_streamer = std::make_shared<chatglm::EventStreamer>(emit, pipeline.tokenizer.get());
+    auto text_streamer = std::make_shared<chatglm::EmitterStreamer>(emit, pipeline.tokenizer.get());
 
     chatglm::GenerationConfig gen_config(args.max_length, args.max_new_tokens, args.max_context_length, args.temp > 0,
                                          args.top_k, args.top_p, args.temp, args.repeat_penalty, args.num_threads);

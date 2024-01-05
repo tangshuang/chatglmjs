@@ -773,9 +773,9 @@ class PerfStreamer : public BaseStreamer {
     int64_t num_output_tokens_;
 };
 
-class EventStreamer : public BaseStreamer {
+class EmitterStreamer : public BaseStreamer {
   public:
-    EventStreamer(Napi::Function &emit, BaseTokenizer *tokenizer)
+    EmitterStreamer(Napi::Function &emit, BaseTokenizer *tokenizer)
         : tokenizer_(tokenizer), emit_(emit), is_prompt_(true), is_first_line_(true), print_len_(0) {}
     void put(const std::vector<int> &output_ids) override;
     void end() override;

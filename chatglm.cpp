@@ -277,7 +277,7 @@ void TextStreamer::end() {
     print_len_ = 0;
 }
 
-void EventStreamer::put(const std::vector<int> &output_ids) {
+void EmitterStreamer::put(const std::vector<int> &output_ids) {
     if (is_prompt_) {
         // skip prompt
         is_prompt_ = false;
@@ -314,7 +314,7 @@ void EventStreamer::put(const std::vector<int> &output_ids) {
     emit_.Call({Napi::String::New(env, "data"), Napi::String::New(env, printable_text)});
 }
 
-void EventStreamer::end() {
+void EmitterStreamer::end() {
     std::string text = tokenizer_->decode(token_cache_);
     if (is_first_line_) {
         ltrim(text);
