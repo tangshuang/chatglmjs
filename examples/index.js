@@ -2,7 +2,7 @@ const { chat } = require('../index');
 const { resolve } = require('path');
 
 const on = chat({
-  modelPath: resolve(__dirname, '../../chatglm2-ggml.bin'),
+  modelPath: resolve(__dirname, '../llms/chatglm3-6b.bin'),
   prompt: '你好',
 });
 
