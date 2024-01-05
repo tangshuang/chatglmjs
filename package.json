@@ -1,0 +1,11 @@
+{
+  "name": "chatglm",
+  "version": "0.0.1",
+  "description": "ChatGLM Node.js Addon",
+  "main": "index.js",
+  "gypfile": true,
+  "dependencies": {
+    "node-addon-api": "*",
+    "bindings": "*"
+  }
+}
