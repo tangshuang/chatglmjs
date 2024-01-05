@@ -1,4 +1,4 @@
-#include "chat.cc"
+#include "chat.cpp"
 
 #include <napi.h>
 #include <chrono>
@@ -15,7 +15,7 @@ Napi::Value Enter(const Napi::CallbackInfo &info) {
   args.model_path = model_path;
   args.prompt = prompt;
 
-  Chat::chat(emit, args);
+  Chat::chat(env, emit, args);
 
   return Napi::String::New(env, "OK");
 }

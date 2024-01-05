@@ -7,7 +7,6 @@
 #include "ggml-metal.h"
 #endif
 
-#include <napi.h>
 #include <cmath>
 #include <iomanip>
 #include <sstream>
@@ -771,22 +770,6 @@ class PerfStreamer : public BaseStreamer {
     int64_t end_us_;
     int64_t num_prompt_tokens_;
     int64_t num_output_tokens_;
-};
-
-class EmitterStreamer : public BaseStreamer {
-  public:
-    EmitterStreamer(Napi::Function &emit, BaseTokenizer *tokenizer)
-        : tokenizer_(tokenizer), emit_(emit), is_prompt_(true), is_first_line_(true), print_len_(0) {}
-    void put(const std::vector<int> &output_ids) override;
-    void end() override;
-
-  private:
-    BaseTokenizer *tokenizer_;
-    Napi::Function &emit_;
-    bool is_prompt_;
-    bool is_first_line_;
-    std::vector<int> token_cache_;
-    int print_len_;
 };
 
 class MappedFile {

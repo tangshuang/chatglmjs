@@ -3,7 +3,14 @@
     {
       "target_name": "chatglm",
       "sources": [
-        "main.cc"
+        "main.cpp",
+        "chat.cpp",
+        "libs/chatglm.cpp",
+        "libs/chatglm.h",
+        "libs/ggml-backend.h",
+        "libs/ggml-meta.h",
+        "libs/ggml.h",
+        "libs/sentencepiece_processor.h"
       ],
       'cflags!': [ '-fno-exceptions' ],
       'cflags_cc!': [ '-fno-exceptions' ],
@@ -24,9 +31,6 @@
             'MACOSX_DEPLOYMENT_TARGET': '10.7'
           }
         }]
-      ],
-      "defines": [
-        "_GLIBCXX_USE_CXX11_ABI=0"
       ]
     }
   ]

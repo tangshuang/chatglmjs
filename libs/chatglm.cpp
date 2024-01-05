@@ -1,6 +1,5 @@
 #include "chatglm.h"
 
-#include <napi.h>
 #include <algorithm>
 #include <codecvt>
 #include <cstring>
@@ -275,59 +274,6 @@ void TextStreamer::end() {
     is_first_line_ = true;
     token_cache_.clear();
     print_len_ = 0;
-}
-
-void EmitterStreamer::put(const std::vector<int> &output_ids) {
-    if (is_prompt_) {
-        // skip prompt
-        is_prompt_ = false;
-        return;
-    }
-
-    static const std::vector<char> puncts{',', '!', ':', ';', '?'};
-
-    token_cache_.insert(token_cache_.end(), output_ids.begin(), output_ids.end());
-    std::string text = tokenizer_->decode(token_cache_);
-    if (is_first_line_) {
-        ltrim(text);
-    }
-    if (text.empty()) {
-        return;
-    }
-
-    std::string printable_text;
-    if (text.back() == '\n') {
-        // flush the cache after newline
-        printable_text = text.substr(print_len_);
-        is_first_line_ = false;
-        token_cache_.clear();
-        print_len_ = 0;
-    } else if (std::find(puncts.begin(), puncts.end(), text.back()) != puncts.end()) {
-        // last symbol is a punctuation, hold on
-    } else if (text.size() >= 3 && text.compare(text.size() - 3, 3, "�") == 0) {
-        // ends with an incomplete token, hold on
-    } else {
-        printable_text = text.substr(print_len_);
-        print_len_ = text.size();
-    }
-
-    emit_.Call({Napi::String::New(env, "data"), Napi::String::New(env, printable_text)});
-}
-
-void EmitterStreamer::end() {
-    std::string text = tokenizer_->decode(token_cache_);
-    if (is_first_line_) {
-        ltrim(text);
-    }
-    std::string printable_text = text.substr(print_len_);
-
-    is_prompt_ = true;
-    is_first_line_ = true;
-    token_cache_.clear();
-    print_len_ = 0;
-
-    emit_.Call({Napi::String::New(env, "data"), Napi::String::New(env, printable_text)});
-    emit_.Call({Napi::String::New(env, "end")});
 }
 
 void PerfStreamer::put(const std::vector<int> &output_ids) {
