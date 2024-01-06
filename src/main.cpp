@@ -1,4 +1,4 @@
-#include "chat.cpp"
+#include "chat.h"
 
 #include <napi.h>
 #include <chrono>
@@ -7,7 +7,7 @@
 
 Napi::Value Enter(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
-  Napi::Function emit = info[0].As<Napi::Function>();
+  Napi::Function callback = info[0].As<Napi::Function>();
   Napi::String model_path = info[1].As<Napi::String>();
   Napi::String prompt = info[2].As<Napi::String>();
 
@@ -15,7 +15,11 @@ Napi::Value Enter(const Napi::CallbackInfo &info) {
   args.model_path = model_path;
   args.prompt = prompt;
 
-  Chat::chat(env, emit, args);
+  void emit(std::string type, std::string msg) {
+    callback.Call({Napi::String::New(env, type), Napi::String::New(env, msg)});
+  }
+
+  Chat::chat(emit, args);
 
   return Napi::String::New(env, "OK");
 }

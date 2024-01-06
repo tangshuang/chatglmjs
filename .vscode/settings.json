@@ -58,6 +58,20 @@
         "system_error": "cpp",
         "typeinfo": "cpp",
         "unordered_map": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "__tree": "cpp",
+        "cinttypes": "cpp",
+        "forward_list": "cpp",
+        "list": "cpp",
+        "map": "cpp",
+        "queue": "cpp",
+        "set": "cpp",
+        "stack": "cpp",
+        "typeindex": "cpp",
+        "unordered_set": "cpp",
+        "valarray": "cpp",
+        "__availability": "cpp",
+        "type_traits": "cpp",
+        "chrono": "cpp"
     }
 }

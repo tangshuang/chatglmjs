@@ -3,8 +3,14 @@
   "version": "0.0.1",
   "description": "ChatGLM Node.js Addon",
   "main": "index.js",
-  "gypfile": true,
+  "gypfilexxxx": true,
+  "scripts": {
+    "init": "git submodule update --init --recursive",
+    "postinstall": "npm run rebuild",
+    "rebuild": "cmake-js compile"
+  },
   "dependencies": {
+    "cmake-js": "*",
     "node-addon-api": "*",
     "bindings": "*"
   }
