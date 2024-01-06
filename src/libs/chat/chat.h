@@ -25,7 +25,12 @@ namespace Chat {
         int num_threads = 0;
     };
 
-    static void chat(void (*emit)(std::string type, std::string msg), Args &args);
+    class Emitter {
+        public:
+            void emit(std::string type, std::string msg);
+    };
+
+    static void chat(Emitter &emitter, Args &args);
 }
 
 #endif

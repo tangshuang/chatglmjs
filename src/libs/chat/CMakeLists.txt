@@ -20,8 +20,10 @@ endif ()
 
 include_directories(${PROJECT_BINARY_DIR})
 
-include_directories(third_party/chatglm.cpp)
+include_directories(third_party/chatglm.cpp/third_party/ggml/include/ggml)
+include_directories(third_party/chatglm.cpp/third_party/ggml/src)
 include_directories(third_party/chatglm.cpp/third_party/sentencepiece/src)
+include_directories(third_party/chatglm.cpp)
 add_subdirectory(third_party/chatglm.cpp)
 
 add_library(chat STATIC chat.cpp)

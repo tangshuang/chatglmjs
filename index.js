@@ -1,5 +1,5 @@
 const { EventEmitter } = require('events');
-const chatglm = require('bindings')('chatglm');
+const chatglm = require('bindings')('chatglmjs');
 const fs = require('fs');
 
 function chat({ modelPath, prompt }) {

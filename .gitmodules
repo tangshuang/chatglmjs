@@ -1,3 +1,0 @@
-[submodule "src/libs/chat/third_party/chatglm.cpp"]
-	path = src/libs/chat/third_party/chatglm.cpp
-	url = https://github.com/li-plus/chatglm.cpp.git

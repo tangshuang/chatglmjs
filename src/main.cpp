@@ -5,6 +5,19 @@
 #include <iostream>
 #include <thread>
 
+class Emitter: public Chat::Emitter {
+  public:
+    Emitter(Napi::Env &env, Napi::Function &callback)
+      : env_(env), callback_(callback) {};
+    void emit(std::string type, std::string msg) {
+      callback_.Call({Napi::String::New(env_, type), Napi::String::New(env_, msg)});
+    }
+
+  private:
+    Napi::Env env_;
+    Napi::Function callback_;
+};
+
 Napi::Value Enter(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
   Napi::Function callback = info[0].As<Napi::Function>();
@@ -15,11 +28,9 @@ Napi::Value Enter(const Napi::CallbackInfo &info) {
   args.model_path = model_path;
   args.prompt = prompt;
 
-  void emit(std::string type, std::string msg) {
-    callback.Call({Napi::String::New(env, type), Napi::String::New(env, msg)});
-  }
+  Emitter emitter(env, callback);
 
-  Chat::chat(emit, args);
+  Chat::chat(emitter, args);
 
   return Napi::String::New(env, "OK");
 }

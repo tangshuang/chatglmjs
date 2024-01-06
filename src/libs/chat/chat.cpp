@@ -24,8 +24,8 @@ namespace Chat {
     class EmitterStreamer : public chatglm::BaseStreamer
     {
     public:
-        EmitterStreamer(void (*emit)(std::string type, std::string msg), chatglm::BaseTokenizer *tokenizer)
-            : emit_(emit), tokenizer_(tokenizer), is_prompt_(true), is_first_line_(true), print_len_(0) {}
+        EmitterStreamer(Emitter emitter, chatglm::BaseTokenizer *tokenizer)
+            : emitter_(emitter), tokenizer_(tokenizer), is_prompt_(true), is_first_line_(true), print_len_(0) {}
 
         void put(const std::vector<int> &output_ids) override
         {
@@ -72,7 +72,7 @@ namespace Chat {
                 print_len_ = text.size();
             }
 
-            emit_("data", printable_text);
+            emitter_.emit("data", printable_text);
         };
 
         void end() override
@@ -89,12 +89,12 @@ namespace Chat {
             token_cache_.clear();
             print_len_ = 0;
 
-            emit_("data", printable_text);
-            emit_("end", "");
+            emitter_.emit("data", printable_text);
+            emitter_.emit("end", "");
         };
 
     private:
-        void (*emit_)(std::string type, std::string msg);
+        Emitter emitter_;
         chatglm::BaseTokenizer *tokenizer_;
         bool is_prompt_;
         bool is_first_line_;
@@ -102,7 +102,7 @@ namespace Chat {
         int print_len_;
     };
 
-    static void chat(void (*emit)(std::string type, std::string msg), Args &args) {
+    static void chat(Emitter &emitter, Args &args) {
         if (args.prompt.empty()) {
             return;
         }
@@ -111,7 +111,7 @@ namespace Chat {
 
         std::string model_name = pipeline.model->config.model_type_name();
 
-        auto streamer = std::make_shared<EmitterStreamer>(emit, pipeline.tokenizer.get());
+        auto streamer = std::make_shared<EmitterStreamer>(emitter, pipeline.tokenizer.get());
 
         chatglm::GenerationConfig gen_config(args.max_length, args.max_new_tokens, args.max_context_length, args.temp > 0,
                                             args.top_k, args.top_p, args.temp, args.repeat_penalty, args.num_threads);

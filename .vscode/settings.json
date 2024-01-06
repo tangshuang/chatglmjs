@@ -72,6 +72,7 @@
         "valarray": "cpp",
         "__availability": "cpp",
         "type_traits": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "functional": "cpp"
     }
 }
