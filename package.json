@@ -6,7 +6,7 @@
   "gypfile.xxxx": true,
   "scripts": {
     "postinstall": "npm run rebuild",
-    "rebuild": "cmake-js compile"
+    "rebuild": "cmake-js rebuild --runtime node --runtimeVersion 20.9.0 --arch arm64"
   },
   "dependencies": {
     "cmake-js": "*",

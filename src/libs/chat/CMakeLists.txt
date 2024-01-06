@@ -26,5 +26,11 @@ include_directories(third_party/chatglm.cpp/third_party/sentencepiece/src)
 include_directories(third_party/chatglm.cpp)
 add_subdirectory(third_party/chatglm.cpp)
 
+file(GLOB CPP_SOURCES
+    ${PROJECT_SOURCE_DIR}/chat.h
+    ${PROJECT_SOURCE_DIR}/chat.cpp)
+
+set_source_files_properties(${CPP_SOURCES} PROPERTIES COMPILE_FLAGS "-pedantic-errors")
+
 add_library(chat STATIC chat.cpp)
 target_link_libraries(chat chatglm)
