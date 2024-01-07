@@ -5,6 +5,7 @@
   "main": "index.js",
   "gypfile": false,
   "scripts": {
+    "postinstall": "npm run cmake",
     "cmake": "cmake-js rebuild"
   },
   "dependencies": {
