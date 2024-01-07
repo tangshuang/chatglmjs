@@ -4,7 +4,7 @@
 #include <iostream>
 #include <chatglm.h>
 
-namespace Chat {
+namespace chat {
     enum InferenceMode {
         INFERENCE_MODE_CHAT,
         INFERENCE_MODE_GENERATE,
@@ -30,7 +30,7 @@ namespace Chat {
             void emit(std::string type, std::string msg);
     };
 
-    static void chat(Emitter &emitter, Args &args);
+    static void chat(Emitter emitter, Args args);
 }
 
 #endif

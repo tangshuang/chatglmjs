@@ -3,10 +3,9 @@
   "version": "0.0.1",
   "description": "ChatGLM Node.js Addon",
   "main": "index.js",
-  "gypfile.xxxx": true,
+  "gypfile": false,
   "scripts": {
-    "postinstall": "npm run rebuild",
-    "rebuild": "cmake-js rebuild --runtime node --runtimeVersion 20.9.0 --arch arm64"
+    "cmake": "cmake-js rebuild"
   },
   "dependencies": {
     "cmake-js": "*",

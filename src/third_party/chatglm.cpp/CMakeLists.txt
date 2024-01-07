@@ -13,7 +13,6 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif ()
 
-include_directories(${PROJECT_SOURCE_DIR})
 
 # third-party libraries
 add_compile_definitions(GGML_CUDA_MMV_Y=2)  # for large vocab
@@ -45,6 +44,8 @@ file(GLOB CPP_SOURCES
     ${PROJECT_SOURCE_DIR}/*.cpp)
 
 set_source_files_properties(${CPP_SOURCES} PROPERTIES COMPILE_FLAGS "-pedantic-errors")
+
+include_directories(${PROJECT_SOURCE_DIR})
 
 add_library(chatglm STATIC chatglm.cpp)
 target_link_libraries(chatglm PUBLIC ggml sentencepiece-static)

@@ -17,23 +17,20 @@ project(chatglmjs VERSION 0.0.1 LANGUAGES CXX)
 
 ##############
 
+add_subdirectory(src/third_party/chatglm.cpp)
 
-include_directories(${CMAKE_JS_INC})
-include_directories(src/libs/chat/third_party/chatglm.cpp/third_party/ggml/include/ggml)
-include_directories(src/libs/chat/third_party/chatglm.cpp/third_party/ggml/src)
-include_directories(src/libs/chat/third_party/chatglm.cpp/third_party/sentencepiece/src)
-include_directories(src/libs/chat/third_party/chatglm.cpp)
-include_directories(src/libs/chat)
-add_subdirectory(src/libs/chat)
+include_directories(
+    ${CMAKE_JS_INC}
+    src/third_party/chatglm.cpp/third_party/ggml/include/ggml
+    src/third_party/chatglm.cpp/third_party/ggml/src
+    src/third_party/chatglm.cpp/third_party/sentencepiece/src
+    src/third_party/chatglm.cpp
+    src
+)
 
-file(GLOB CPP_SOURCES ${PROJECT_SOURCE_DIR}/src/main.cpp)
-
-set_source_files_properties(${CPP_SOURCES} PROPERTIES COMPILE_FLAGS "-pedantic-errors")
-
-
-add_library(${PROJECT_NAME} SHARED ${CPP_SOURCES} ${CMAKE_JS_SRC})
-set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
-target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
+add_library(chatglmjs SHARED src/chat.cpp src/napi.cpp ${CMAKE_JS_SRC})
+set_target_properties(chatglmjs PROPERTIES PREFIX "" SUFFIX ".node")
+target_link_directories(chatglmjs PRIVATE chatglm ${CMAKE_JS_LIB})
 
 # Include Node-API wrappers
 execute_process(COMMAND node -p "require('node-addon-api').include"
@@ -42,7 +39,24 @@ execute_process(COMMAND node -p "require('node-addon-api').include"
         )
 string(REGEX REPLACE "[\r\n\"]" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${NODE_ADDON_API_DIR})
+target_include_directories(chatglmjs PRIVATE
+    ${NODE_ADDON_API_DIR}
+    ${CMAKE_JS_INC}
+    src/third_party/chatglm.cpp/third_party/ggml/include/ggml
+    src/third_party/chatglm.cpp/third_party/ggml/src
+    src/third_party/chatglm.cpp/third_party/sentencepiece/src
+    src/third_party/chatglm.cpp
+    src
+)
 
 # define NAPI_VERSION
 add_definitions(-DNAPI_VERSION=3)
+
+
+add_executable(demo src/chat.cpp src/demo.cpp)
+target_link_libraries(demo chatglm ${CMAKE_JS_LIB})
+
+if (MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    add_definitions("/wd4267 /wd4244 /wd4305 /Zc:strictStrings /utf-8")
+endif ()

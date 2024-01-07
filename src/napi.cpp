@@ -1,11 +1,10 @@
-#include "chat.h"
-
+#include <chat.h>
 #include <napi.h>
 #include <chrono>
 #include <iostream>
 #include <thread>
 
-class Emitter: public Chat::Emitter {
+class Emitter: public chat::Emitter {
   public:
     Emitter(Napi::Env &env, Napi::Function &callback)
       : env_(env), callback_(callback) {};
@@ -24,13 +23,13 @@ Napi::Value Enter(const Napi::CallbackInfo &info) {
   Napi::String model_path = info[1].As<Napi::String>();
   Napi::String prompt = info[2].As<Napi::String>();
 
-  Chat::Args args;
+  chat::Args args;
   args.model_path = model_path;
   args.prompt = prompt;
 
   Emitter emitter(env, callback);
 
-  Chat::chat(emitter, args);
+  chat::chat(emitter, args);
 
   return Napi::String::New(env, "OK");
 }

@@ -14,7 +14,7 @@
 #include <windows.h>
 #endif
 
-namespace Chat {
+namespace chat {
 
     // trim from start (in place)
     inline void ltrim(std::string &s) {
@@ -102,7 +102,7 @@ namespace Chat {
         int print_len_;
     };
 
-    static void chat(Emitter &emitter, Args &args) {
+    static void chat(Emitter emitter, Args args) {
         if (args.prompt.empty()) {
             return;
         }
