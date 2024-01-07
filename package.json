@@ -1,5 +1,5 @@
 {
-  "name": "chatglm",
+  "name": "chatglmjs",
   "version": "0.0.1",
   "description": "ChatGLM Node.js Addon",
   "main": "index.js",
