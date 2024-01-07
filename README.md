@@ -5,6 +5,8 @@ You can use a ChatGLM LLM easily in nodejs or electron application.
 
 ## Usage
 
+Before installation, make sure your device environment is able to compile c++ source code. We will use cmake-js to build a .node file.
+
 ```
 npm i chatglmjs
 ```
