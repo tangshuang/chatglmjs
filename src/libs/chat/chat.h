@@ -2,7 +2,7 @@
 #define __CHAT__
 
 #include <iostream>
-#include "chatglm.h"
+#include <chatglm.h>
 
 namespace Chat {
     enum InferenceMode {

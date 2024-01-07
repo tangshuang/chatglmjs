@@ -1,5 +1,5 @@
-#include "chatglm.h"
-#include "chat.h"
+#include <chatglm.h>
+#include <chat.h>
 
 #include <fstream>
 #include <iomanip>

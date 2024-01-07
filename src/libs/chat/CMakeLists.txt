@@ -14,12 +14,7 @@ if (NOT CMAKE_BUILD_TYPE)
 endif ()
 
 
-############
-
-
-
-include_directories(${PROJECT_BINARY_DIR})
-
+include_directories(${PROJECT_SOURCE_DIR})
 include_directories(third_party/chatglm.cpp/third_party/ggml/include/ggml)
 include_directories(third_party/chatglm.cpp/third_party/ggml/src)
 include_directories(third_party/chatglm.cpp/third_party/sentencepiece/src)
@@ -33,4 +28,10 @@ file(GLOB CPP_SOURCES
 set_source_files_properties(${CPP_SOURCES} PROPERTIES COMPILE_FLAGS "-pedantic-errors")
 
 add_library(chat STATIC chat.cpp)
-target_link_libraries(chat chatglm)
+target_link_libraries(chat PUBLIC chatglm)
+target_include_directories(chat PUBLIC third_party/chatglm.cpp)
+
+if (MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    add_definitions("/wd4267 /wd4244 /wd4305 /Zc:strictStrings /utf-8")
+endif ()
