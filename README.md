@@ -16,7 +16,7 @@ const { chat } = require('chatglmjs');
 const { resolve } = require('path');
 
 chat({
-  modelpath: resolve(__dirname, '../llms/chatglm3-6b.q4_0.apple-macbook-m2pro.bin'),
+  model_path: resolve(__dirname, '../llms/chatglm3-6b.q4_0.apple-macbook-m2pro.bin'),
   prompt: '你好',
   onmessage(msg) {
     process.stdout.write(msg);
@@ -24,10 +24,13 @@ chat({
 });
 ```
 
-- modelpath: the converted LLM model file path (learn more latter)
+- model_path: the converted LLM model file path (learn more latter)
 - prompt
-- onmessage: callback function with the answered text by LLM
-- onend: callback function when LLM answer end
+- temperature? = 0.95
+- top_p? = 0.7
+- top_k? = 0
+- onmessage?: callback function with the answered text by LLM
+- onend?: callback function when LLM answer end
 
 ## LLM
 
@@ -40,7 +43,7 @@ python3 -m pip install torch tabulate tqdm transformers accelerate sentencepiece
 python3 chatglm_cpp/convert.py -i THUDM/chatglm-6b -t q4_0 -o chatglm3-6b.q4_0.apple-macbook-m2pro.bin
 ```
 
-Then you will get a `chatglm3-6b.q4_0.apple-macbook-m2pro.bin` file, use this file as converted LLM model file and pass its file path to `modelpath` option.
+Then you will get a `chatglm3-6b.q4_0.apple-macbook-m2pro.bin` file, use this file as converted LLM model file and pass its file path to `model_path` option.
 
 chatglm.cpp supports the models `ChatGLM2-6B` `ChatGLM3-6B` `Baichuan-13B-Chat` `Baichuan2-7B-Chat` `Baichuan2-13B-Chat` `InternLM-Chat-7B` `InternaL-Chat-20B` and so on models. You can read its document to find out which models supported.
 

@@ -1,9 +1,17 @@
 const chatglm = require('bindings')('chatglmjs');
 const fs = require('fs');
 
-function chat({ modelpath, prompt, onmessage, onend }) {
-  if (!fs.existsSync(modelpath)) {
-    throw new Error(`modelpath: ${modelpath} is not existing.`);
+function chat({
+  model_path,
+  prompt,
+  onmessage,
+  onend,
+  temperature = 0.95,
+  top_p = 0.7,
+  top_k = 0,
+} = {}) {
+  if (!fs.existsSync(model_path)) {
+    throw new Error(`model_path: ${model_path} is not existing.`);
   }
   if (!prompt.trim()) {
     throw new Error('prompt should not be empty.');
@@ -18,7 +26,7 @@ function chat({ modelpath, prompt, onmessage, onend }) {
     }
   };
 
-  chatglm.chat(callback, modelpath, prompt);
+  chatglm.chat(callback, model_path, prompt, temperature, top_p, top_k);
 }
 
 module.exports = { chat };

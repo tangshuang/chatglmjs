@@ -102,7 +102,9 @@ public:
         token_cache_.clear();
         print_len_ = 0;
 
-        callback_.Call({Napi::String::New(env_, "data"), Napi::String::New(env_, printable_text)});
+        if (!printable_text.empty()) {
+            callback_.Call({Napi::String::New(env_, "data"), Napi::String::New(env_, printable_text)});
+        }
         callback_.Call({Napi::String::New(env_, "end"), Napi::String::New(env_, "")});
     };
 
@@ -165,10 +167,16 @@ Napi::Value Enter(const Napi::CallbackInfo &info)
     Napi::Function callback = info[0].As<Napi::Function>();
     Napi::String model_path = info[1].As<Napi::String>();
     Napi::String prompt = info[2].As<Napi::String>();
+    Napi::Number temp = info[3].As<Napi::Number>();
+    Napi::Number top_p = info[4].As<Napi::Number>();
+    Napi::Number top_k = info[5].As<Napi::Number>();
 
     Args args;
     args.model_path = model_path;
     args.prompt = prompt;
+    args.temp = temp;
+    args.top_p = top_p;
+    args.top_k = top_k;
 
     return chat(env, callback, args);
 }
