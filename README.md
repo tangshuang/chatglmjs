@@ -12,7 +12,7 @@ npm i chatglmjs
 ```
 
 ```js
-const { chat } = require('../index');
+const { chat } = require('chatglmjs');
 const { resolve } = require('path');
 
 chat({
