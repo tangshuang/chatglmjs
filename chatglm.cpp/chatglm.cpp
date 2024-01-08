@@ -474,6 +474,7 @@ std::string to_string(ModelType model_type) {
         return "InternLM";
     default:
         CHATGLM_THROW << "unknown model type " << (int)model_type;
+        return "";
     }
 }
 
