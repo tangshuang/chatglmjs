@@ -56,7 +56,6 @@ if (isMainThread) {
       }
       else if (type === 'end') {
         onend?.();
-        process.exit(0);
       }
     });
 
