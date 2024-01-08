@@ -12,7 +12,7 @@ npm i chatglmjs
 ```
 
 ```js
-const { chat } = require('chatglmjs');
+const { chat, chatSync } = require('chatglmjs');
 const { resolve } = require('path');
 
 chat({
@@ -24,13 +24,25 @@ chat({
 });
 ```
 
-- model_path: the converted LLM model file path (learn more latter)
-- prompt
-- temperature? = 0.95
-- top_p? = 0.7
-- top_k? = 0
-- onmessage?: callback function with the answered text by LLM
-- onend?: callback function when LLM answer end
+```ts
+type ChatParams = {
+    /** the converted LLM model file path */
+    model_path: string;
+    prompt: string;
+    /** @default 0.95 */
+    temperature?: number;
+    /** @default 0.7 */
+    top_p?: number;
+    /** @default 0 */
+    top_k?: number;
+    /** callback function with the answered text by LLM */
+    onmessage?: (msg: string) => void;
+    /** callback function when LLM answer end */
+    onend?: () => void;
+    /** callback function when error ocurs */
+    onerror?: (e: Error) => void;
+};
+```
 
 ## LLM
 
