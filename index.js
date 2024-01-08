@@ -1,20 +1,24 @@
 const chatglm = require('bindings')('chatglmjs');
 const fs = require('fs');
+const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
 
-function chat({
+function chatSync({
   model_path,
   prompt,
-  onmessage,
-  onend,
   temperature = 0.95,
   top_p = 0.7,
   top_k = 0,
+  onmessage,
+  onend,
+  onerror,
 } = {}) {
   if (!fs.existsSync(model_path)) {
-    throw new Error(`model_path: ${model_path} is not existing.`);
+    onerror?.(`model_path: ${model_path} is not existing.`);
+    return;
   }
-  if (!prompt.trim()) {
-    throw new Error('prompt should not be empty.');
+  if (!prompt?.trim()) {
+    onerror?.('prompt should not be empty.');
+    return;
   }
 
   const callback = (type, msg) => {
@@ -26,7 +30,56 @@ function chat({
     }
   };
 
-  chatglm.chat(callback, model_path, prompt, temperature, top_p, top_k);
+  const output = chatglm.chat(callback, model_path, prompt, temperature, top_p, top_k);
+  return output;
 }
 
-module.exports = { chat };
+if (isMainThread) {
+  function chat({
+    model_path,
+    prompt,
+    temperature = 0.95,
+    top_p = 0.7,
+    top_k = 0,
+    onmessage,
+    onend,
+    onerror,
+  } = {}) {
+    const workerData = JSON.stringify({ model_path, prompt, temperature, top_p, top_k });
+    const worker = new Worker(__filename, { workerData, synchronizedStdio: true });
+
+    worker.on('message', (message) => {
+      const data = JSON.parse(message);
+      const { type, msg } = data;
+      if (type === 'data') {
+        onmessage?.(msg);
+      }
+      else if (type === 'end') {
+        onend?.();
+        process.exit(0);
+      }
+    });
+
+    worker.on('error', (e) => {
+      onerror?.(e);
+    });
+  }
+
+  module.exports = { chat, chatSync };
+} else {
+  const data = JSON.parse(workerData);
+  const params = {
+    ...data,
+    onmessage(msg) {
+      parentPort.postMessage(JSON.stringify({ type: 'data', msg }));
+    },
+    onend() {
+      parentPort.postMessage(JSON.stringify({ type: 'end' }));
+    },
+    onerror(err) {
+      throw new Error(err);
+    }
+  };
+  chatSync(params);
+  process.exit(0);
+}

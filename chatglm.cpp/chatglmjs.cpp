@@ -120,16 +120,6 @@ private:
 
 Napi::Value chat(Napi::Env &env, Napi::Function &callback, Args args)
 {
-    if (args.prompt.empty())
-    {
-        return Napi::String::New(env, "prompt empty");
-    }
-
-    if (args.model_path.empty())
-    {
-        return Napi::String::New(env, "model_path empty");
-    }
-
     chatglm::Pipeline pipeline(args.model_path);
 
     std::string model_name = pipeline.model->config.model_type_name();
@@ -150,13 +140,13 @@ Napi::Value chat(Napi::Env &env, Napi::Function &callback, Args args)
         std::vector<chatglm::ChatMessage> messages = system_messages;
         messages.emplace_back(chatglm::ChatMessage::ROLE_USER, args.prompt);
         chatglm::ChatMessage output = pipeline.chat(messages, gen_config, streamer.get());
+        return Napi::String::New(env, output.content);
     }
     else
     {
         std::string output = pipeline.generate(args.prompt, gen_config, streamer.get());
+        return Napi::String::New(env, output);
     }
-
-    return Napi::String::New(env, "OK");
 }
 
 // /////////////////////////////////////////////////////////
