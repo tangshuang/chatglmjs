@@ -1,6 +1,6 @@
 {
   "name": "chatglmjs",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "ChatGLM Node.js Addon",
   "main": "index.js",
   "scripts": {
