@@ -1,6 +1,6 @@
 {
   "name": "chatglmjs",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "ChatGLM Node.js Addon",
   "main": "index.js",
   "scripts": {
@@ -16,6 +16,8 @@
     "dotenv": "^16.3.1"
   },
   "binary": {
-    "napi_versions": [7]
+    "napi_versions": [
+      7
+    ]
   }
 }
