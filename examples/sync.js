@@ -9,6 +9,9 @@ const model_bin_path = process.env.MODEL_BIN_PATH || resolve(__dirname, '../llms
 const output = chatSync({
     model_bin_path,
     prompt: '你好',
+    onerror(e) {
+        console.error(e);
+    },
 });
 
 console.log(output);

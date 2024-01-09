@@ -16,6 +16,6 @@ export type ChatParams = {
     onerror?: (e: Error) => void;
 };
 
-export declare function chat(params: ChatParams): void;
+export declare function chat(params: ChatParams): Promise<string>;
 
 export declare function chatSync(params: ChatParams): string;

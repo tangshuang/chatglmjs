@@ -1,7 +1,7 @@
 const chatglm = require('bindings')('chatglmjs');
 const fs = require('fs');
 
-const createChatFn = (method) => function chatSync({
+const createChatFn = (method, defered) => function chatSync({
   model_bin_path,
   prompt,
   temperature = 0.95,
@@ -21,20 +21,32 @@ const createChatFn = (method) => function chatSync({
     return;
   }
 
+  let resolve, reject, message = '';
+  const promise = new Promise((r, j) => {
+    resolve = r;
+    reject = j;
+  });
+
   const callback = (type, msg) => {
     if (type === 'data') {
       onmessage?.(msg);
+      message += msg;
     }
     else if (type === 'end') {
       onend?.();
+      resolve(message);
+    }
+    else if (type === 'error') {
+      onerror?.(msg);
+      reject(new Error(msg));
     }
   };
 
   const output = chatglm[method](callback, model_bin_path, prompt, temperature, top_p, top_k);
-  return output;
+  return defered ? promise : output;
 };
 
-const chat = createChatFn('chat');
+const chat = createChatFn('chat', true);
 const chatSync = createChatFn('chatSync');
 
 module.exports = { chat, chatSync };

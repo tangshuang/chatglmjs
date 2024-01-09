@@ -23,7 +23,7 @@ struct Args
     int max_context_length = 512;
     int top_k = 0;
     float top_p = 0.7;
-    float temp = 0.95;
+    float temperature = 0.95;
     float repeat_penalty = 1.0;
     int num_threads = 0;
 };
@@ -127,8 +127,8 @@ std::string chat(std::function<void (std::string, std::string)> &callback, Args 
 
     auto streamer = std::make_shared<EmitterStreamer>(callback, pipeline.tokenizer.get());
 
-    chatglm::GenerationConfig gen_config(args.max_length, args.max_new_tokens, args.max_context_length, args.temp > 0,
-                                         args.top_k, args.top_p, args.temp, args.repeat_penalty, args.num_threads);
+    chatglm::GenerationConfig gen_config(args.max_length, args.max_new_tokens, args.max_context_length, args.temperature > 0,
+                                         args.top_k, args.top_p, args.temperature, args.repeat_penalty, args.num_threads);
 
     std::vector<chatglm::ChatMessage> system_messages;
     if (!args.system.empty())
@@ -158,14 +158,14 @@ Napi::String ChatSync(const Napi::CallbackInfo &info)
     Napi::Function callback = info[0].As<Napi::Function>();
     Napi::String model_bin_path = info[1].As<Napi::String>();
     Napi::String prompt = info[2].As<Napi::String>();
-    Napi::Number temp = info[3].As<Napi::Number>();
+    Napi::Number temperature = info[3].As<Napi::Number>();
     Napi::Number top_p = info[4].As<Napi::Number>();
     Napi::Number top_k = info[5].As<Napi::Number>();
 
     Args args;
     args.model_bin_path = model_bin_path;
     args.prompt = prompt;
-    args.temp = temp;
+    args.temperature = temperature;
     args.top_p = top_p;
     args.top_k = top_k;
 
@@ -178,38 +178,70 @@ Napi::String ChatSync(const Napi::CallbackInfo &info)
     return Napi::String::New(env, output);
 }
 
-class ChatWorker: public Napi::AsyncProgressWorker<std::string>
+struct ChatWorkerMessage {
+    std::string type;
+    std::string msg;
+};
+
+class ChatWorker : public Napi::AsyncProgressWorker<ChatWorkerMessage>
 {
 public:
     ChatWorker(Napi::Function &callback, Args &args)
-        : Napi::AsyncProgressWorker<std::string>(callback), args(args) {};
+        : Napi::AsyncProgressWorker<ChatWorkerMessage>(callback),
+          model_bin_path(args.model_bin_path),
+          prompt(args.prompt),
+          top_k(args.top_k),
+          top_p(args.top_p),
+          temperature(args.temperature)
+    {
+        // SuppressDestruct();
+    };
 
     ~ChatWorker() {}
 
     void Execute(const ExecutionProgress &progress) {
         std::function<void (std::string, std::string)> func = [&progress](std::string type, std::string msg) -> void {
-            progress.Send(&msg, sizeof(msg));
+            ChatWorkerMessage info = { type, msg };
+            progress.Send(&info, 1);
         };
-        chat(func, args);
+
+        Args params;
+        params.model_bin_path = model_bin_path;
+        params.prompt = prompt;
+        params.temperature = temperature;
+        params.top_p = top_p;
+        params.top_k = top_k;
+
+        chat(func, params);
     };
 
-    void OnError(const Napi::Error &e) {
+    void OnError(const Napi::Error &e)
+    {
         Napi::HandleScope scope(Napi::Env());
         Callback().Call({Napi::String::New(Env(), "error"), Napi::String::New(Env(), e.Message())});
+        // Destroy();
     };
 
-    void OnOk() {
-        Napi::HandleScope scope(Napi::Env());
-        Callback().Call({Napi::String::New(Env(), "end"), Napi::String::New(Env(), "")});
+    void OnOk()
+    {
+        // Napi::HandleScope scope(Napi::Env());
+        // Callback().Call({Napi::String::New(Env(), "end"), Napi::String::New(Env(), "")});
+        // std::cout << "OnOK======>" << std::endl;
+        // Destroy();
     };
 
-    void OnProgress(const std::string *msg, size_t size) {
+    void OnProgress(const ChatWorkerMessage *info, size_t size)
+    {
         Napi::HandleScope scope(Napi::Env());
-        Callback().Call({Napi::String::New(Env(), "data"), Napi::String::New(Env(), *msg)});
+        Callback().Call({Napi::String::New(Env(), info->type), Napi::String::New(Env(), info->msg)});
     };
 
 private:
-    Args &args;
+    std::string model_bin_path;
+    std::string prompt;
+    int top_k;
+    float top_p;
+    float temperature;
 };
 
 void ChatAsync(const Napi::CallbackInfo &info)
@@ -218,14 +250,14 @@ void ChatAsync(const Napi::CallbackInfo &info)
     Napi::Function callback = info[0].As<Napi::Function>();
     Napi::String model_bin_path = info[1].As<Napi::String>();
     Napi::String prompt = info[2].As<Napi::String>();
-    Napi::Number temp = info[3].As<Napi::Number>();
+    Napi::Number temperature = info[3].As<Napi::Number>();
     Napi::Number top_p = info[4].As<Napi::Number>();
     Napi::Number top_k = info[5].As<Napi::Number>();
 
     Args args;
     args.model_bin_path = model_bin_path;
     args.prompt = prompt;
-    args.temp = temp;
+    args.temperature = temperature;
     args.top_p = top_p;
     args.top_k = top_k;
 
