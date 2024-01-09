@@ -13,7 +13,7 @@ enum InferenceMode
 
 struct Args
 {
-    std::string model_path = "chatglm-ggml.bin";
+    std::string model_bin_path = "chatglm-ggml.bin";
     InferenceMode mode = INFERENCE_MODE_CHAT;
     std::string prompt = "";
     std::string system = "";
@@ -37,8 +37,8 @@ void ltrim(std::string &s)
 class EmitterStreamer : public chatglm::BaseStreamer
 {
 public:
-    EmitterStreamer(Napi::Env &env, Napi::Function &callback, chatglm::BaseTokenizer *tokenizer)
-        : env_(env), callback_(callback), tokenizer_(tokenizer), is_prompt_(true), is_first_line_(true), print_len_(0) {}
+    EmitterStreamer(std::function<void (std::string, std::string)> &callback, chatglm::BaseTokenizer *tokenizer)
+        : callback_(callback), tokenizer_(tokenizer), is_prompt_(true), is_first_line_(true), print_len_(0) {}
 
     void put(const std::vector<int> &output_ids) override
     {
@@ -85,7 +85,7 @@ public:
             print_len_ = text.size();
         }
 
-        callback_.Call({Napi::String::New(env_, "data"), Napi::String::New(env_, printable_text)});
+        callback_("data", printable_text);
     };
 
     void end() override
@@ -103,14 +103,14 @@ public:
         print_len_ = 0;
 
         if (!printable_text.empty()) {
-            callback_.Call({Napi::String::New(env_, "data"), Napi::String::New(env_, printable_text)});
+            callback_("data", printable_text);
         }
-        callback_.Call({Napi::String::New(env_, "end"), Napi::String::New(env_, "")});
+
+        callback_("end", "");
     };
 
 private:
-    Napi::Env &env_;
-    Napi::Function &callback_;
+    std::function<void (std::string, std::string)> &callback_;
     chatglm::BaseTokenizer *tokenizer_;
     bool is_prompt_;
     bool is_first_line_;
@@ -118,13 +118,13 @@ private:
     int print_len_;
 };
 
-Napi::Value chat(Napi::Env &env, Napi::Function &callback, Args args)
+std::string chat(std::function<void (std::string, std::string)> &callback, Args &args)
 {
-    chatglm::Pipeline pipeline(args.model_path);
+    chatglm::Pipeline pipeline(args.model_bin_path);
 
     std::string model_name = pipeline.model->config.model_type_name();
 
-    auto streamer = std::make_shared<EmitterStreamer>(env, callback, pipeline.tokenizer.get());
+    auto streamer = std::make_shared<EmitterStreamer>(callback, pipeline.tokenizer.get());
 
     chatglm::GenerationConfig gen_config(args.max_length, args.max_new_tokens, args.max_context_length, args.temp > 0,
                                          args.top_k, args.top_p, args.temp, args.repeat_penalty, args.num_threads);
@@ -140,41 +140,47 @@ Napi::Value chat(Napi::Env &env, Napi::Function &callback, Args args)
         std::vector<chatglm::ChatMessage> messages = system_messages;
         messages.emplace_back(chatglm::ChatMessage::ROLE_USER, args.prompt);
         chatglm::ChatMessage output = pipeline.chat(messages, gen_config, streamer.get());
-        return Napi::String::New(env, output.content);
+        return output.content;
     }
     else
     {
         std::string output = pipeline.generate(args.prompt, gen_config, streamer.get());
-        return Napi::String::New(env, output);
+        return output;
     }
 }
 
 // /////////////////////////////////////////////////////////
 
-Napi::Value Enter(const Napi::CallbackInfo &info)
+Napi::String ChatSync(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
     Napi::Function callback = info[0].As<Napi::Function>();
-    Napi::String model_path = info[1].As<Napi::String>();
+    Napi::String model_bin_path = info[1].As<Napi::String>();
     Napi::String prompt = info[2].As<Napi::String>();
     Napi::Number temp = info[3].As<Napi::Number>();
     Napi::Number top_p = info[4].As<Napi::Number>();
     Napi::Number top_k = info[5].As<Napi::Number>();
 
     Args args;
-    args.model_path = model_path;
+    args.model_bin_path = model_bin_path;
     args.prompt = prompt;
     args.temp = temp;
     args.top_p = top_p;
     args.top_k = top_k;
 
-    return chat(env, callback, args);
+    std::function<void (std::string, std::string)> func = [&env, &callback] (std::string type, std::string msg) -> void {
+        callback.Call({Napi::String::New(env, type), Napi::String::New(env, msg)});
+    };
+
+    std::string output = chat(func, args);
+
+    return Napi::String::New(env, output);
 }
 
 // Init
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {
-    exports.Set(Napi::String::New(env, "chat"), Napi::Function::New(env, Enter));
+    exports.Set(Napi::String::New(env, "chatSync"), Napi::Function::New(env, ChatSync));
     return exports;
 }
 

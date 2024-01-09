@@ -8,8 +8,11 @@
     "cmake": "cmake-js rebuild"
   },
   "dependencies": {
+    "bindings": "*",
     "cmake-js": "*",
-    "node-addon-api": "*",
-    "bindings": "*"
+    "node-addon-api": "*"
+  },
+  "devDependencies": {
+    "dotenv": "^16.3.1"
   }
 }
