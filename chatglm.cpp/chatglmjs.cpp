@@ -1,4 +1,5 @@
 #include <napi.h>
+
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -168,7 +169,7 @@ Napi::String ChatSync(const Napi::CallbackInfo &info)
     args.top_p = top_p;
     args.top_k = top_k;
 
-    std::function<void (std::string, std::string)> func = [&env, &callback] (std::string type, std::string msg) -> void {
+    std::function<void (std::string, std::string)> func = [&env, &callback](std::string type, std::string msg) -> void {
         callback.Call({Napi::String::New(env, type), Napi::String::New(env, msg)});
     };
 
@@ -177,10 +178,66 @@ Napi::String ChatSync(const Napi::CallbackInfo &info)
     return Napi::String::New(env, output);
 }
 
+class ChatWorker: public Napi::AsyncProgressWorker<std::string>
+{
+public:
+    ChatWorker(Napi::Function &callback, Args &args)
+        : Napi::AsyncProgressWorker<std::string>(callback), args(args) {};
+
+    ~ChatWorker() {}
+
+    void Execute(const ExecutionProgress &progress) {
+        std::function<void (std::string, std::string)> func = [&progress](std::string type, std::string msg) -> void {
+            progress.Send(&msg, sizeof(msg));
+        };
+        chat(func, args);
+    };
+
+    void OnError(const Napi::Error &e) {
+        Napi::HandleScope scope(Napi::Env());
+        Callback().Call({Napi::String::New(Env(), "error"), Napi::String::New(Env(), e.Message())});
+    };
+
+    void OnOk() {
+        Napi::HandleScope scope(Napi::Env());
+        Callback().Call({Napi::String::New(Env(), "end"), Napi::String::New(Env(), "")});
+    };
+
+    void OnProgress(const std::string *msg, size_t size) {
+        Napi::HandleScope scope(Napi::Env());
+        Callback().Call({Napi::String::New(Env(), "data"), Napi::String::New(Env(), *msg)});
+    };
+
+private:
+    Args &args;
+};
+
+void ChatAsync(const Napi::CallbackInfo &info)
+{
+    Napi::Env env = info.Env();
+    Napi::Function callback = info[0].As<Napi::Function>();
+    Napi::String model_bin_path = info[1].As<Napi::String>();
+    Napi::String prompt = info[2].As<Napi::String>();
+    Napi::Number temp = info[3].As<Napi::Number>();
+    Napi::Number top_p = info[4].As<Napi::Number>();
+    Napi::Number top_k = info[5].As<Napi::Number>();
+
+    Args args;
+    args.model_bin_path = model_bin_path;
+    args.prompt = prompt;
+    args.temp = temp;
+    args.top_p = top_p;
+    args.top_k = top_k;
+
+    ChatWorker *worker = new ChatWorker(callback, args);
+    worker->Queue();
+}
+
 // Init
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {
     exports.Set(Napi::String::New(env, "chatSync"), Napi::Function::New(env, ChatSync));
+    exports.Set(Napi::String::New(env, "chat"), Napi::Function::New(env, ChatAsync));
     return exports;
 }
 

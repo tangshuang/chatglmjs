@@ -50,22 +50,26 @@ include_directories(${PROJECT_SOURCE_DIR})
 add_library(chatglm STATIC chatglm.cpp)
 target_link_libraries(chatglm PUBLIC ggml sentencepiece-static)
 
-##########################################################################
+######################### Include Node-API wrappers ###############################
 
-add_library(chatglmjs SHARED chatglmjs.cpp)
-target_link_libraries(chatglmjs PRIVATE chatglm ${CMAKE_JS_LIB})
-set_target_properties(chatglmjs PROPERTIES PREFIX "" SUFFIX ".node")
-
-# Include Node-API wrappers
 execute_process(COMMAND node -p "require('node-addon-api').include"
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         OUTPUT_VARIABLE NODE_ADDON_API_DIR
         )
 string(REGEX REPLACE "[\r\n\"]" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR})
+
+message("NAPI NODE_ADDON_API_DIR:: " ${NODE_ADDON_API_DIR})
+message("CMAKE_JS_INC::"  ${CMAKE_JS_INC})
+
+include_directories(${NODE_ADDON_API_DIR} ${CMAKE_JS_INC})
+
+add_library(chatglmjs SHARED chatglmjs.cpp)
+set_target_properties(chatglmjs PROPERTIES PREFIX "" SUFFIX ".node")
+target_link_libraries(chatglmjs PRIVATE chatglm ${CMAKE_JS_LIB})
 target_include_directories(chatglmjs PRIVATE ${NODE_ADDON_API_DIR} ${CMAKE_JS_INC})
 
-# define NAPI_VERSION
-add_definitions(-DNAPI_VERSION=3)
+add_definitions(-DNAPI_VERSION=7)
+add_definitions(-DNAPI_EXPERIMENTAL)
 
 ##########################################################################
 

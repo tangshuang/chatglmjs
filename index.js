@@ -1,8 +1,7 @@
 const chatglm = require('bindings')('chatglmjs');
 const fs = require('fs');
-const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
 
-function chatSync({
+const createChatFn = (method) => function chatSync({
   model_bin_path,
   prompt,
   temperature = 0.95,
@@ -31,55 +30,11 @@ function chatSync({
     }
   };
 
-  const output = chatglm.chatSync(callback, model_bin_path, prompt, temperature, top_p, top_k);
+  const output = chatglm[method](callback, model_bin_path, prompt, temperature, top_p, top_k);
   return output;
-}
+};
 
-if (isMainThread) {
-  function chat({
-    model_bin_path,
-    prompt,
-    temperature = 0.95,
-    top_p = 0.7,
-    top_k = 0,
-    onmessage,
-    onend,
-    onerror,
-  } = {}) {
-    const workerData = JSON.stringify({ model_bin_path, prompt, temperature, top_p, top_k });
-    const worker = new Worker(__filename, { workerData, synchronizedStdio: true });
+const chat = createChatFn('chat');
+const chatSync = createChatFn('chatSync');
 
-    worker.on('message', (message) => {
-      const data = JSON.parse(message);
-      const { type, msg } = data;
-      if (type === 'data') {
-        onmessage?.(msg);
-      }
-      else if (type === 'end') {
-        onend?.();
-      }
-    });
-
-    worker.on('error', (e) => {
-      onerror?.(e);
-    });
-  }
-
-  module.exports = { chat, chatSync };
-} else {
-  const data = JSON.parse(workerData);
-  const params = {
-    ...data,
-    onmessage(msg) {
-      parentPort.postMessage(JSON.stringify({ type: 'data', msg }));
-    },
-    onend() {
-      parentPort.postMessage(JSON.stringify({ type: 'end' }));
-    },
-    onerror(err) {
-      throw new Error(err);
-    }
-  };
-  chatSync(params);
-  process.exit(0);
-}
+module.exports = { chat, chatSync };
