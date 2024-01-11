@@ -2,6 +2,7 @@
   "name": "chatglmjs",
   "version": "0.0.9",
   "description": "ChatGLM Node.js Addon",
+  "homepage": "https://github.com/tangshuang/chatglmjs",
   "main": "index.js",
   "scripts": {
     "postinstall": "npm run cmake",
