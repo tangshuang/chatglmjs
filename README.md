@@ -11,12 +11,22 @@ Before installation, make sure your device environment is able to compile c++ so
 npm i chatglmjs
 ```
 
+Requirements:
+
+- Windows:
+  - [CMake](https://cmake.org/download/)
+  - Visutal Studio with C/C++ compiler or [more for cmake-js](https://github.com/cmake-js/cmake-js?tab=readme-ov-file#installation), *Notice: Visutal Studio should be open when installing*
+  - [Visual C++ Build Tools](https://visualstudio.microsoft.com/zh-hans/visual-cpp-build-tools/)
+- Unix/Posix:
+  - gcc/g++
+  - cmake
+
 ```js
 const { chat, chatSync } = require('chatglmjs');
 const { resolve } = require('path');
 
 chat({
-  model_bin_path: resolve(__dirname, '../llms/chatglm3-6b.q4_0.apple-macbook-m2pro.bin'),
+  model_bin_path: resolve(__dirname, '../llms/chatglm3-6b.q4_0.linux_x64.bin'),
   prompt: '你好',
   onmessage(msg) {
     process.stdout.write(msg);
