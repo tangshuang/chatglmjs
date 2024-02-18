@@ -62,7 +62,7 @@ The addon is created based on [chatglm.cpp](https://github.com/li-plus/chatglm.c
 git clone --recursive https://github.com/li-plus/chatglm.cpp.git && cd chatglm.cpp
 python3 -m pip install -U pip
 python3 -m pip install torch tabulate tqdm transformers accelerate sentencepiece
-python3 chatglm_cpp/convert.py -i THUDM/chatglm-6b -t q4_0 -o chatglm3-6b.q4_0.bin
+python3 chatglm_cpp/convert.py -i THUDM/chatglm3-6b -t q4_0 -o chatglm3-6b.q4_0.bin
 ```
 
 Then you will get a `chatglm3-6b.q4_0.bin` file, use this file as converted LLM model file and pass its file path to `model_bin_path` option.
