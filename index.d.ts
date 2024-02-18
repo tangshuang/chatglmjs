@@ -1,6 +1,6 @@
 export type ChatParams = {
-    /** the converted LLM model file path */
-    model_path: string;
+    /** the converted LLM model bin file path */
+    model_bin_path: string;
     prompt: string;
     /** @default 0.95 */
     temperature?: number;

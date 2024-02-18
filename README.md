@@ -36,7 +36,7 @@ chat({
 
 ```ts
 type ChatParams = {
-    /** the converted LLM model file path */
+    /** the converted LLM model bin file path */
     model_bin_path: string;
     prompt: string;
     /** @default 0.95 */
@@ -62,10 +62,10 @@ The addon is created based on [chatglm.cpp](https://github.com/li-plus/chatglm.c
 git clone --recursive https://github.com/li-plus/chatglm.cpp.git && cd chatglm.cpp
 python3 -m pip install -U pip
 python3 -m pip install torch tabulate tqdm transformers accelerate sentencepiece
-python3 chatglm_cpp/convert.py -i THUDM/chatglm-6b -t q4_0 -o chatglm3-6b.q4_0.apple-macbook-m2pro.bin
+python3 chatglm_cpp/convert.py -i THUDM/chatglm-6b -t q4_0 -o chatglm3-6b.q4_0.bin
 ```
 
-Then you will get a `chatglm3-6b.q4_0.apple-macbook-m2pro.bin` file, use this file as converted LLM model file and pass its file path to `model_bin_path` option.
+Then you will get a `chatglm3-6b.q4_0.bin` file, use this file as converted LLM model file and pass its file path to `model_bin_path` option.
 
 chatglm.cpp supports the models `ChatGLM2-6B` `ChatGLM3-6B` `Baichuan-13B-Chat` `Baichuan2-7B-Chat` `Baichuan2-13B-Chat` `InternLM-Chat-7B` `InternaL-Chat-20B` and so on models. You can read its document to find out which models supported.
 
