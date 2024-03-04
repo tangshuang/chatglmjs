@@ -1,7 +1,7 @@
 # ChatGLM.js
 
 ChatGLM NodeJS addon.
-You can use a ChatGLM LLM easily in nodejs or electron application.
+You can run a local ChatGLM LLM easily in nodejs or electron application.
 
 ## Usage
 
