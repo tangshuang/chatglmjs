@@ -26,7 +26,7 @@ const { chat, chatSync } = require('chatglmjs');
 const { resolve } = require('path');
 
 chat({
-  model_bin_path: resolve(__dirname, '../llms/chatglm3-6b.q4_0.linux_x64.bin'),
+  model_bin_path: resolve(__dirname, '../llms/chatglm3-6b.q4_0.bin'),
   prompt: '你好',
   onmessage(msg) {
     process.stdout.write(msg);
@@ -64,6 +64,8 @@ python3 -m pip install -U pip
 python3 -m pip install torch tabulate tqdm transformers accelerate sentencepiece
 python3 chatglm_cpp/convert.py -i THUDM/chatglm3-6b -t q4_0 -o chatglm3-6b.q4_0.bin
 ```
+
+[Download a biult of chatglm3-6b.q4_0.bin from network disk.](https://pan.baidu.com/s/14Pi-egjtnuqBGl8NAanwpg?pwd=s2sv)
 
 Then you will get a `chatglm3-6b.q4_0.bin` file, use this file as converted LLM model file and pass its file path to `model_bin_path` option.
 
